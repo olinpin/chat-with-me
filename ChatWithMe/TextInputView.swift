@@ -37,5 +37,6 @@ struct TextInputView: View {
                 .padding()
                 .padding(.trailing)
         }
+        .disabled(message.isEmpty)
     }
 }

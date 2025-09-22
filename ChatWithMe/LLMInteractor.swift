@@ -10,8 +10,11 @@ import FoundationModels
 
 class LLMInteractor {
     
+    static let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
+    
     static func query(for query: String, session: LanguageModelSession, completion: @escaping (Result<String, Error>) -> Void) async {
         do {
+            print(query)
             let response = try await session.respond(to: query)
             return completion(.success(response.content))
         } catch {

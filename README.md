@@ -10,3 +10,4 @@
     - [ ] what's the time in X (different timezone, city, etc.)
     - [ ] Apple Maps integration? Create a plan and then show it in Apple Maps
     - [ ] add a way to add any shortcuts to the tool calling
+- [ ] while typing, expand the text

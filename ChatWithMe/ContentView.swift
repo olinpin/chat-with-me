@@ -12,8 +12,7 @@ import FoundationModels
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     
-    
-    @State private var currentChat: LanguageModelSession = LanguageModelSession()
+    @State private var currentChat: LanguageModelSession = LanguageModelSession(model: LLMInteractor.model, instructions: "You are a language model. I can help you with anything. Just ask me anything. I'm here to help!")
     @State private var message: String = ""
     @State var responses: [(Users, String)] = []
     
@@ -25,8 +24,11 @@ struct ContentView: View {
     }
 
     private func askAI() {
+        let currentMessage = message
+        message = ""
         Task {
-            await LLMInteractor.query(for: message, session: currentChat) { response in
+            responses.append((Users.User, currentMessage))
+            await LLMInteractor.query(for: currentMessage, session: currentChat) { response in
 //            await LLMInteractor.query(for: message) { response in
                 switch response {
                 case .failure(let error):
@@ -34,11 +36,8 @@ struct ContentView: View {
                 case .success(let res):
                     responses.append((Users.AI, res))
                 }
-                
             }
         }
-        responses.append((Users.User, message))
-        message = ""
     }
     
     

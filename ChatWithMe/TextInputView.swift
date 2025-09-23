@@ -10,6 +10,7 @@ import SwiftUI
 struct TextInputView: View {
     @Binding var message: String
     var action: () -> ()
+    @FocusState var isKeyboardActive: Bool
     var body: some View {
         ZStack {
                 TextField("Type here...", text: $message)
@@ -17,6 +18,7 @@ struct TextInputView: View {
                     .background(.gray.opacity(0.5))
                     .clipShape(Capsule())
                     .padding(.horizontal)
+                    .focused($isKeyboardActive)
             HStack {
                 Spacer()
                 makeButton(action: action)

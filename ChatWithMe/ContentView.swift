@@ -16,11 +16,16 @@ struct ContentView: View {
     @State private var message: String = ""
     @State var responses: [AiResponse] = []
     @StateObject var llmInteractor = LLMInteractor()
+    @FocusState var isKeyboardActive: Bool
+
     
     var body: some View {
         VStack {
             ChatUIView(responses: $responses)
-            TextInputView(message: $message, action: askAI)
+                .onTapGesture {
+                    isKeyboardActive = false
+                }
+            TextInputView(message: $message, action: askAI, isKeyboardActive: _isKeyboardActive)
         }
         .onChange(of: llmInteractor.output) { oldValue, newValue in
             print("CHANGING", oldValue, newValue)

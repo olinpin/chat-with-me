@@ -7,18 +7,28 @@
 
 import Foundation
 import FoundationModels
+import SwiftUI
 
-class LLMInteractor {
+@MainActor
+class LLMInteractor: ObservableObject {
     
+    @Published var output: String = ""
+    @Published var isStreaming = false
     static let model = SystemLanguageModel(guardrails: .permissiveContentTransformations)
     
-    static func query(for query: String, session: LanguageModelSession, completion: @escaping (Result<String, Error>) -> Void) async {
-        do {
-            print(query)
-            let response = try await session.respond(to: query)
-            return completion(.success(response.content))
-        } catch {
-            print("\(error)")
+    func query(for query: String, session: LanguageModelSession) {
+        Task {
+            isStreaming = true
+            output = ""
+            do {
+                let response = session.streamResponse(to: query)
+                for try await partial in response {
+                    output = partial.content
+                }
+            } catch {
+                print(error)
+            }
+            isStreaming = false
         }
     }
     
@@ -31,4 +41,10 @@ class LLMInteractor {
 
 enum Users {
     case User, AI
+}
+
+struct AiResponse {
+    var user: Users
+    var text: String
+    var id = UUID()
 }

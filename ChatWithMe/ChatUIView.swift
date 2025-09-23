@@ -8,13 +8,15 @@
 import SwiftUI
 
 struct ChatUIView: View {
-    @Binding var responses: [(Users, String)]
+    @Binding var responses: [AiResponse]
     var body: some View {
         GeometryReader { geo in
             
             ScrollView {
-                ForEach(responses, id: \.self.1) { actor, message in
-                    var messageColor = actor == Users.AI ? Color.blue : Color.green
+                ForEach(responses, id: \.id) { res in
+                    let actor = res.user
+                    let message = res.text
+                    let messageColor = actor == Users.AI ? Color.blue : Color.green
                     HStack {
                         if actor == Users.User {
                             Spacer(minLength: geo.size.width / 4)
@@ -34,9 +36,4 @@ struct ChatUIView: View {
             }
         }
     }
-}
-
-#Preview {
-    @State var responses: [(Users, String)] = [(Users.User, "Hi"), (Users.AI, "Hello"), (Users.User, "What can you do?")]
-    return ChatUIView(responses: $responses)
 }

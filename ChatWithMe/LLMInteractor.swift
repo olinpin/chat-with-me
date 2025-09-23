@@ -37,14 +37,3 @@ class LLMInteractor: ObservableObject {
     }
 
 }
-
-
-enum Users {
-    case User, AI
-}
-
-struct AiResponse {
-    var user: Users
-    var text: String
-    var id = UUID()
-}

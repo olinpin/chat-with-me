@@ -28,7 +28,6 @@ struct ContentView: View {
             TextInputView(message: $message, action: askAI, isKeyboardActive: _isKeyboardActive)
         }
         .onChange(of: llmInteractor.output) { oldValue, newValue in
-            print("CHANGING", oldValue, newValue)
             if !newValue.isEmpty && !chat.responses.isEmpty {
                 let lastIndex = chat.responses.count - 1
                 if chat.responses[lastIndex].user == Users.AI {
@@ -41,7 +40,13 @@ struct ContentView: View {
         }
         .onChange(of: llmInteractor.isStreaming) { oldValue, newValue in
             if oldValue {
-                self.tryToSave()
+                Task {
+                    let name = await llmInteractor.createName(for: chat)
+                    if name != chat.name {
+                        chat.name = name
+                    }
+                    self.tryToSave()
+                }
             }
         }
         .onDisappear {

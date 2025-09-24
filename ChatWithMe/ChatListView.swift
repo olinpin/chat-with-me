@@ -36,7 +36,7 @@ struct ChatListView: View {
                     ContentView(chat: chat)
                 }) {
                     VStack(alignment: .leading, spacing: 4) {
-                        Text(chat.displayName)
+                        Text(chat.name ?? chat.displayName)
                             .font(.headline)
                         if let firstResponse = chat.responses.first {
                             Text(firstResponse.text)

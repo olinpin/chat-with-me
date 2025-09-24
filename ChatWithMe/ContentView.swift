@@ -16,12 +16,12 @@ struct ContentView: View {
     @State private var message: String = ""
     @StateObject var llmInteractor = LLMInteractor()
     @FocusState var isKeyboardActive: Bool
-    @State var chat: Chat
+    @ObservedObject var chat: Chat
 
     
     var body: some View {
         VStack {
-            ChatUIView(chat: $chat)
+            ChatUIView(chat: chat)
                 .onTapGesture {
                     isKeyboardActive = false
                 }
@@ -29,16 +29,13 @@ struct ContentView: View {
         }
         .onChange(of: llmInteractor.output) { oldValue, newValue in
             print("CHANGING", oldValue, newValue)
-            if chat.transcript == nil {
-                chat.transcript = []
-            }
-            if let responses = chat.transcript {
-                if !newValue.isEmpty && !responses.isEmpty {
-                    let lastIndex = responses.count - 1
-                    if responses[lastIndex].user == Users.AI {
-                        let updatedResponse = responses[lastIndex]
-                        updatedResponse.text = newValue
-                    }
+            if !newValue.isEmpty && !chat.responses.isEmpty {
+                let lastIndex = chat.responses.count - 1
+                if chat.responses[lastIndex].user == Users.AI {
+                    let updatedResponse = chat.responses[lastIndex]
+                    updatedResponse.text = newValue
+                    // Explicitly mark the chat as changed for Core Data
+                    chat.objectWillChange.send()
                 }
             }
         }
@@ -63,20 +60,24 @@ struct ContentView: View {
         let currentMessage = message
         message = ""
         if chat.transcript == nil {
-            chat.transcript = []
+            chat.transcript = NSSet()
         }
         let userRes = AiResponse(context: viewContext)
         userRes.userType = Users.User.rawValue
         userRes.id = UUID()
+        userRes.timestamp = Date()
         userRes.text = currentMessage
         
         let AIRes = AiResponse(context: viewContext)
         AIRes.userType = Users.AI.rawValue
         AIRes.id = UUID()
+        AIRes.timestamp = Date()
         AIRes.text = ""
         
-        chat.transcript?.append(userRes)
-        chat.transcript?.append(AIRes) // Start with empty AI response
+        // Properly add to the Core Data relationship
+        chat.addToTranscript(userRes)
+        chat.addToTranscript(AIRes)
+        
         self.tryToSave()
         llmInteractor.query(for: currentMessage, session: currentChat)
     }

@@ -3,12 +3,13 @@
     <entity name="AiResponse" representedClassName="AiResponse" syncable="YES">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="text" optional="YES" attributeType="String"/>
+        <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="userType" optional="YES" attributeType="String"/>
     </entity>
     <entity name="Chat" representedClassName="Chat" syncable="YES" codeGenerationType="class">
         <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="timestamp" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="transcript" optional="YES" attributeType="Transformable" customClassName="[AiResponse]"/>
+        <relationship name="transcript" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="AiResponse"/>
     </entity>
 </model>

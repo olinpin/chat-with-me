@@ -19,7 +19,8 @@ public class AiResponse: NSManagedObject {
     @NSManaged public var userType: String
     @NSManaged public var text: String
     @NSManaged public var id: UUID
-    
+    @NSManaged public var timestamp: Date
+
     // Computed property to work with the enum
     var user: Users {
         get {
@@ -29,13 +30,13 @@ public class AiResponse: NSManagedObject {
             userType = newValue.rawValue
         }
     }
-    
-    public override func awakeFromInsert() {
-        super.awakeFromInsert()
-        
-        // Set default values when creating a new instance
-        if id == UUID(uuidString: "00000000-0000-0000-0000-000000000000") {
-            id = UUID()
+}
+
+extension Chat {
+    public var responses: [AiResponse] {
+        let set = transcript as? Set<AiResponse> ?? []
+        return set.sorted {
+            $0.timestamp < $1.timestamp
         }
     }
 }

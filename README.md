@@ -12,4 +12,6 @@
     - [ ] add a way to add any shortcuts to the tool calling
 - [ ] while typing, expand the input text
 - [ ] add rich text parser
-- [ ] stream the response
+- [x] stream the response
+- [ ] only add new chat when actual text/transcript is not empty
+- [ ] use model to create the name of the chat based on the transcript

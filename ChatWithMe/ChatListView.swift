@@ -13,9 +13,13 @@ struct ChatListView: View {
     @State private var newChatToNavigateTo: Chat?
     
     @FetchRequest(
-        sortDescriptors: [NSSortDescriptor(keyPath: \Chat.timestamp, ascending: true)],
+        sortDescriptors: [NSSortDescriptor(keyPath: \Chat.timestamp, ascending: false)],
         animation: .default)
-    private var chats: FetchedResults<Chat>
+    private var allChats: FetchedResults<Chat>
+
+    private var chatsWithContent: [Chat] {
+        allChats.filter { $0.shouldBePersisted }
+    }
 
     private func createNewChat() {
         let newChat = Chat(context: viewContext)
@@ -27,11 +31,20 @@ struct ChatListView: View {
 
     var body: some View {
         NavigationStack(path: $navigationPath) {
-            List(chats) { chat in
+            List(chatsWithContent, id: \.id) { chat in
                 NavigationLink(destination: {
                     ContentView(chat: chat)
                 }) {
-                    Text(chat.name ?? "No name chat")
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(chat.displayName)
+                            .font(.headline)
+                        if let firstResponse = chat.responses.first {
+                            Text(firstResponse.text)
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                                .lineLimit(2)
+                        }
+                    }
                 }
             }
             .navigationTitle(Text("Chats"))
@@ -44,6 +57,25 @@ struct ChatListView: View {
                         Image(systemName: "square.and.pencil")
                     }
                 }
+            }
+        }
+        .onAppear {
+            cleanupEmptyChats()
+        }
+    }
+    
+    private func cleanupEmptyChats() {
+        let emptyChats = allChats.filter { !$0.shouldBePersisted }
+        for emptyChat in emptyChats {
+            viewContext.delete(emptyChat)
+        }
+
+        if !emptyChats.isEmpty {
+            do {
+                try viewContext.save()
+                print("Cleaned up \(emptyChats.count) empty chats")
+            } catch {
+                print("Error cleaning up empty chats: \(error)")
             }
         }
     }

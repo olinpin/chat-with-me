@@ -44,40 +44,60 @@ struct ContentView: View {
                 self.tryToSave()
             }
         }
+        .onDisappear {
+            if !chat.shouldBePersisted {
+                viewContext.delete(chat)
+                do {
+                    try viewContext.save()
+                    print("Deleted empty chat on view disappear")
+                } catch {
+                    print("Error deleting empty chat: \(error)")
+                }
+            }
+        }
     }
     
     private func tryToSave() {
-        do {
-            chat.timestamp = Date()
-            try viewContext.save()
-            print("saving")
-        } catch {
-            print(error)
+        if chat.shouldBePersisted {
+            do {
+                chat.timestamp = Date()
+                try viewContext.save()
+                print("saving chat with content")
+            } catch {
+                print(error)
+            }
+        } else {
+            print("skipping save - chat has no content")
         }
     }
 
     private func askAI() {
-        let currentMessage = message
+        let currentMessage = message.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !currentMessage.isEmpty else {
+            return
+        }
+
         message = ""
         if chat.transcript == nil {
             chat.transcript = NSSet()
         }
+
         let userRes = AiResponse(context: viewContext)
         userRes.userType = Users.User.rawValue
         userRes.id = UUID()
         userRes.timestamp = Date()
         userRes.text = currentMessage
-        
+
         let AIRes = AiResponse(context: viewContext)
         AIRes.userType = Users.AI.rawValue
         AIRes.id = UUID()
         AIRes.timestamp = Date()
         AIRes.text = ""
-        
-        // Properly add to the Core Data relationship
+
         chat.addToTranscript(userRes)
         chat.addToTranscript(AIRes)
-        
+
         self.tryToSave()
         llmInteractor.query(for: currentMessage, session: currentChat)
     }

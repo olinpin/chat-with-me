@@ -12,19 +12,20 @@ struct TextInputView: View {
     var action: () -> ()
     @FocusState var isKeyboardActive: Bool
     var body: some View {
-        ZStack {
-                TextField("Type here...", text: $message)
-                    .padding()
-                    .background(.gray.opacity(0.5))
-                    .clipShape(Capsule())
-                    .padding(.horizontal)
-                    .focused($isKeyboardActive)
-            HStack {
-                Spacer()
+        HStack {
+            TextField("Type here...", text: $message, axis: .vertical)
+                .padding()
+                .background(.gray.opacity(0.5))
+                .clipShape(RoundedRectangle(cornerSize: CGSize(width: 20, height: 20)))
+                .padding(.leading)
+                .focused($isKeyboardActive)
+                .lineLimit(1...)
+                .padding(.trailing, !message.isEmpty ? 0 : 15)
+            if !message.isEmpty {
                 makeButton(action: action)
+                    .frame(maxHeight: 60)
             }
         }
-        .frame(maxHeight: 60)
     }
     // button function builder
     @ViewBuilder
@@ -36,9 +37,15 @@ struct TextInputView: View {
                         .foregroundStyle(.white)
                         .bold()
                 }
-                .padding()
+                .frame(width: 35)
                 .padding(.trailing)
         }
         .disabled(message.isEmpty)
     }
+}
+
+
+#Preview {
+    @State var message = "dsaf"
+    return TextInputView(message: $message, action: {})
 }

@@ -11,7 +11,7 @@ import SwiftUI
 
 @Generable(description: "A short chat name with maximum 5 words")
 struct ChatName {
-    @Guide(description: "Chat summary in maximum 5 words", .count(1...5))
+    @Guide(description: "Chat summary in maximum 5 words")
     var name: String
 }
 
@@ -62,16 +62,45 @@ class LLMInteractor: ObservableObject {
 
             let session = LanguageModelSession(
                 model: LLMInteractor.model,
-                instructions:
-                    "You are a summarizer model. Create a concise chat name based on the conversation content."
+                instructions: """
+                    You are a summarizer model. Create a concise chat name based on the conversation content.
+                    CRITICAL REQUIREMENT: The chat name MUST be exactly 5 words or fewer. Never exceed 5 words.
+                    
+                    Count each word carefully before responding.
+                    Examples of valid names: "Weather Chat", "Travel Planning", "Work Discussion", "Family Updates", "Tech Support"
+                    """
             )
 
             let response = try await session.respond(to: filteredText, generating: ChatName.self)
-            return response.content.name
+            let generatedName = response.content.name
+            
+            // Enforce 5-word limit as a final safety check
+            let finalName = enforceWordLimit(generatedName, maxWords: 5)
+            return finalName
+            
         } catch {
             print("Error creating name: \(error)")
         }
         return "Chat"
+    }
+    
+    private func enforceWordLimit(_ text: String, maxWords: Int) -> String {
+        let words = text.trimmingCharacters(in: .whitespacesAndNewlines)
+            .components(separatedBy: .whitespacesAndNewlines)
+            .filter { !$0.isEmpty }
+        
+        // If within limit, return as-is
+        if words.count <= maxWords {
+            return text.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
+        
+        // If exceeds limit, take only the first maxWords
+        let truncatedWords = Array(words.prefix(maxWords))
+        let truncatedName = truncatedWords.joined(separator: " ")
+        
+        print("Warning: Generated name '\(text)' exceeded \(maxWords) words. Truncated to: '\(truncatedName)'")
+        
+        return truncatedName
     }
 
     private func isContentAppropriate(_ text: String) async -> Bool {

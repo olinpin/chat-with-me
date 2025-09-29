@@ -11,7 +11,6 @@ struct ChatUIView: View {
     @ObservedObject var chat: Chat
     var body: some View {
         GeometryReader { geo in
-            
             ScrollView {
                 ForEach(chat.responses, id: \.id) { res in
                     let actor = res.user
@@ -21,7 +20,7 @@ struct ChatUIView: View {
                         if actor == Users.User {
                             Spacer(minLength: geo.size.width / 4)
                         }
-                        Text("\(actor): \(message)")
+                        Text("\(message)")
                             .padding(5)
                             .padding(.horizontal, 5)
                             .background(messageColor)
@@ -34,6 +33,8 @@ struct ChatUIView: View {
                     .padding(.horizontal, 5)
                 }
             }
+            .defaultScrollAnchor(.bottom)
+            .defaultScrollAnchor(.top, for: .alignment)
         }
     }
 }

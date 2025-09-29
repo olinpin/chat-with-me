@@ -15,5 +15,5 @@
 - [x] stream the response
 - [x] only add new chat when actual text/transcript is not empty
 - [x] use model to create the name of the chat based on the transcript
-- [ ] when you open an old chat, start it (scroll to) at the bottom
+- [x] when you open an old chat, start it (scroll to) at the bottom
 - [ ] add voice to text and text to speech

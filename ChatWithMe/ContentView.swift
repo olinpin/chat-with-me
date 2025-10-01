@@ -12,7 +12,7 @@ import FoundationModels
 struct ContentView: View {
     @Environment(\.managedObjectContext) private var viewContext
     
-    @State private var currentChat: LanguageModelSession = LanguageModelSession(model: LLMInteractor.model, tools: [HealthKitTool()], instructions: "You are a language model. I can help you with anything. Just ask me anything. I'm here to help!")
+    @State private var currentChat: LanguageModelSession = LanguageModelSession(model: LLMInteractor.model, tools: [HealthKitTool(), CalculatorTool()], instructions: "You are a language model. I can help you with anything. Just ask me anything. I'm here to help!")
     @State private var message: String = ""
     @StateObject var llmInteractor = LLMInteractor()
     @FocusState var isKeyboardActive: Bool

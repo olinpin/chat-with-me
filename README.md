@@ -5,9 +5,9 @@
 - [ ] tool calling
     - [ ] check weather
     - [ ] check Apple Health for some average info
-        - [ ] allow differetn timelines for the data
+        - [ ] allow different timelines for the data
         - [ ] add a tool for unit conversion
-        - [ ] add a tool for basic math
+        - [x] add a tool for basic math
     - [ ] take a picture (or upload) and use a calculator
     - [ ] add a reminder
     - [ ] what's the time in X (different timezone, city, etc.)
